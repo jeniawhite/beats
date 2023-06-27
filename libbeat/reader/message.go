@@ -19,6 +19,7 @@ package reader
 
 import (
 	"time"
+	"unsafe"
 
 	"github.com/elastic/beats/v7/libbeat/beat"
 	"github.com/elastic/elastic-agent-libs/mapstr"
@@ -86,7 +87,7 @@ func (m *Message) ToEvent() beat.Event {
 		if m.Fields == nil {
 			m.Fields = mapstr.M{}
 		}
-		m.Fields["message"] = string(m.Content)
+		m.Fields["message"] = *(*string)(unsafe.Pointer(&m.Content))
 	}
 
 	return beat.Event{
