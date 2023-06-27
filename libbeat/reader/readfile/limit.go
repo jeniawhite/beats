@@ -18,8 +18,6 @@
 package readfile
 
 import (
-	"fmt"
-
 	"github.com/elastic/beats/v7/libbeat/reader"
 )
 
@@ -39,12 +37,7 @@ func NewLimitReader(r reader.Reader, maxBytes int) *LimitReader {
 func (r *LimitReader) Next() (reader.Message, error) {
 	message, err := r.reader.Next()
 	if len(message.Content) > r.maxBytes {
-		tmp := make([]byte, r.maxBytes)
-		n := copy(tmp, message.Content)
-		if n != r.maxBytes {
-			return message, fmt.Errorf("unexpected number of bytes were copied, %d instead of limit %d", n, r.maxBytes)
-		}
-		message.Content = tmp
+		message.Content = message.Content[:r.maxBytes]
 		message.AddFlagsWithKey("log.flags", "truncated")
 	}
 	return message, err
